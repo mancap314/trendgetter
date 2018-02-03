@@ -41,6 +41,10 @@ def get_google_trends(country):
 
     return res
 
+def get_countries():
+    return sorted(list(country_code.keys()))
+
+
 # # example
 # country = 'SWITZERLAND'
 # res_ch = get_google_trends(country)
