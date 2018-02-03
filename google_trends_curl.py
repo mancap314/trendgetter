@@ -26,14 +26,9 @@ def get_google_trends(country):
     c.close()
 
     body = buffer.getvalue()
-    # Body is a byte string.
-    # We have to know the encoding in order to print it to a text file
-    # such as standard output.
     body = body.decode('UTF-8')
 
-    print(body)
-
-
+    # parsing
     soup = BeautifulSoup(body, 'xml')
     res = []
     for item in soup.find_all('item'):
@@ -44,13 +39,12 @@ def get_google_trends(country):
         publication_date = item.find('pubDate').getText()
         res.append({'keyword': keyword, 'title': title, 'source': source, 'link': link, 'publication_date': publication_date})
 
-    res = pd.DataFrame(res)
     return res
 
 # # example
 # country = 'SWITZERLAND'
 # res_ch = get_google_trends(country)
-# print(res_ch.head())
+# print(res_ch)
 
 
 
