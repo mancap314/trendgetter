@@ -1,5 +1,7 @@
 import pycurl
 from io import BytesIO
+from bs4 import BeautifulSoup
+import pandas as pd
 
 
 base_url = 'https://trends.google.com/trends/hottrends/atom/feed?pn='
@@ -15,19 +17,41 @@ country_code = {'UNITED_STATES': 'p1', 'ARGENTINA': 'p30', 'AUSTRALIA': 'p8', 'A
                  'UNITED_KINGDOM': 'p9', 'VIETNAM': 'p28'}
 
 
-country = 'SWITZERLAND'
+def get_google_trends(country):
+    buffer = BytesIO()
+    c = pycurl.Curl()
+    c.setopt(c.URL, '{}{}'.format(base_url, country_code[country]))
+    c.setopt(c.WRITEDATA, buffer)
+    c.perform()
+    c.close()
 
-buffer = BytesIO()
-c = pycurl.Curl()
-c.setopt(c.URL, '{}{}'.format(base_url, country_code[country]))
-c.setopt(c.WRITEDATA, buffer)
-c.perform()
-c.close()
+    body = buffer.getvalue()
+    # Body is a byte string.
+    # We have to know the encoding in order to print it to a text file
+    # such as standard output.
+    body = body.decode('UTF-8')
 
-body = buffer.getvalue()
-# Body is a byte string.
-# We have to know the encoding in order to print it to a text file
-# such as standard output.
-print(body.decode('UTF-8'))
+    print(body)
+
+
+    soup = BeautifulSoup(body, 'xml')
+    res = []
+    for item in soup.find_all('item'):
+        keyword = item.find('title').get_text()
+        title = item.find('ht:news_item_title').get_text().replace('<b>', '').replace('</b>', '')
+        source = item.find('ht:picture_source').get_text()
+        link = item.find('ht:news_item_url').get_text()
+        publication_date = item.find('pubDate').getText()
+        res.append({'keyword': keyword, 'title': title, 'source': source, 'link': link, 'publication_date': publication_date})
+
+    res = pd.DataFrame(res)
+    return res
+
+# # example
+# country = 'SWITZERLAND'
+# res_ch = get_google_trends(country)
+# print(res_ch.head())
+
+
 
 
