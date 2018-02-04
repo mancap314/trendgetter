@@ -1,7 +1,6 @@
 import pycurl
 from io import BytesIO
 from bs4 import BeautifulSoup
-import pandas as pd
 
 
 base_url = 'https://trends.google.com/trends/hottrends/atom/feed?pn='
@@ -18,6 +17,9 @@ country_code = {'UNITED_STATES': 'p1', 'ARGENTINA': 'p30', 'AUSTRALIA': 'p8', 'A
 
 
 def get_google_trends(country):
+    if country is '':
+        return []
+
     buffer = BytesIO()
     c = pycurl.Curl()
     c.setopt(c.URL, '{}{}'.format(base_url, country_code[country]))
@@ -35,9 +37,9 @@ def get_google_trends(country):
         keyword = item.find('title').get_text()
         title = item.find('ht:news_item_title').get_text().replace('<b>', '').replace('</b>', '')
         source = item.find('ht:picture_source').get_text()
-        link = item.find('ht:news_item_url').get_text()
+        url = item.find('ht:news_item_url').get_text()
         publication_date = item.find('pubDate').getText()
-        res.append({'keyword': keyword, 'title': title, 'source': source, 'link': link, 'publication_date': publication_date})
+        res.append({'keyword': keyword, 'title': title, 'source': source, 'url': url, 'publication_date': publication_date})
 
     return res
 

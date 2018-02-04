@@ -1,16 +1,38 @@
 import tweepy
 from tweepy import OAuthHandler
-import yweather
+import pycurl
+from io import BytesIO
+from bs4 import BeautifulSoup
 import crypto
 
 auth = None
 api = None
 
-client = yweather.Client()
+def get_woeid_code(country):
+    woeid_url = 'http://woeid.rosselliot.co.nz/lookup/{}'.format(country)
+
+    buffer = BytesIO()
+    c = pycurl.Curl()
+    c.setopt(c.URL, woeid_url)
+    c.setopt(c.WRITEDATA, buffer)
+    c.perform()
+    c.close()
+
+    body = buffer.getvalue()
+    body = body.decode('UTF-8')
+
+    # parsing
+    soup = BeautifulSoup(body, 'lxml')
+    code = soup.find('div', id='lookup_result').find("td", {"class": "woeid"}).get_text()
+
+    return code
 
 
 def get_trends(country, password):
     global auth, api
+
+    if country is '':
+        return []
 
     if not crypto.check_password(password):
         return {'keyword': 'Wrong password for Tweeter trends', 'url': '/'}
@@ -21,8 +43,13 @@ def get_trends(country, password):
         auth.set_access_token(credentials['access_token'], credentials['access_secret'])
         api = tweepy.API(auth)
 
-    code = client.fetch_woeid(country)
-    trends = api.trends_place(code)
+
+    code = get_woeid_code(country)
+    try:
+        trends = api.trends_place(code)
+    except:
+        return [{'keyword': 'Sorry, no Twitter trends available for this country', 'url': '/'}]
+
     res = []
     for trend in trends[0]['trends']:
         res.append({'keyword': trend['name'], 'url': trend['url']})
