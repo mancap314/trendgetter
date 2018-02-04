@@ -16,6 +16,9 @@ app.layout = html.Div(children=[
         Trendgetter: Get the news trends.
     '''),
 
+    html.Label('Password for Twitter trends:'),
+    dcc.Input(id='tweet-pwd', type='text', placeholder='type password'),
+
     html.Div([
         dcc.Dropdown(
             id='country-dropdown',
@@ -39,10 +42,11 @@ def update_google_trends(country):
 
 @app.callback(
     dash.dependencies.Output('output-twitter-trends', 'children'),
-    [dash.dependencies.Input('country-dropdown', 'value')]
+    [dash.dependencies.Input('country-dropdown', 'value'),
+     dash.dependencies.Input('tweet-pwd', 'value')]
 )
-def update_twitter_trends(country):
-    twitter_trends = tweets.get_trends(country, 'xxx')
+def update_twitter_trends(country, password):
+    twitter_trends = tweets.get_trends(country, password)
     res = [html.H2('From Twitter')] + [html.H3(trend['keyword']) for trend in twitter_trends]
     return res
 
