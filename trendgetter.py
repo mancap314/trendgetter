@@ -8,6 +8,7 @@ import dash_html_components as html
 
 app = dash.Dash()
 app.title = 'Trendgetter'
+server = app.server
 
 countries = gtc.get_countries()
 

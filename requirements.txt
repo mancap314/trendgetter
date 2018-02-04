@@ -1,0 +1,8 @@
+numpy
+pycrypto
+pycurl
+beautifulsoup4
+tweepy
+dash
+dash_core_components
+dash_html_components
