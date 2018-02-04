@@ -2,6 +2,7 @@ numpy
 pycrypto
 pycurl
 beautifulsoup4
+lxml
 tweepy
 dash
 dash_core_components
