@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import google_trends_curl as gtc
+import tweets
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -23,7 +24,8 @@ app.layout = html.Div(children=[
         ),
     ], style={'width': '20%', 'display': 'inline-block'}),
 
-    html.Div(id='output-google-trends')
+    html.Div(id='output-google-trends'),
+    html.Div(id='output-twitter-trends')
 ])
 
 @app.callback(
@@ -32,7 +34,16 @@ app.layout = html.Div(children=[
 )
 def update_google_trends(country):
     google_trends = gtc.get_google_trends(country)
-    res = [html.H3(trend['keyword']) for trend in google_trends]
+    res = [html.H2('From Google Trends')] + [html.H3(trend['keyword']) for trend in google_trends]
+    return res
+
+@app.callback(
+    dash.dependencies.Output('output-twitter-trends', 'children'),
+    [dash.dependencies.Input('country-dropdown', 'value')]
+)
+def update_twitter_trends(country):
+    twitter_trends = tweets.get_trends(country, 'xxx')
+    res = [html.H2('From Twitter')] + [html.H3(trend['keyword']) for trend in twitter_trends]
     return res
 
 if __name__ == '__main__':

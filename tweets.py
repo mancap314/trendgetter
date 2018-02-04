@@ -1,40 +1,34 @@
 import tweepy
 from tweepy import OAuthHandler
-import credentials as cred
+import yweather
+import crypto
 
-consumer_key = cred.TWEET_CONSUMER_KEY
-consumer_secret = cred.TWEET_CONSUMER_SECRET
-access_token = cred.TWEET_ACCESS_TOKEN
-access_secret = cred.TWEET_ACCESS_SECRET
+auth = None
+api = None
 
-auth = OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_secret)
+client = yweather.Client()
 
-api = tweepy.API(auth)
 
-# tweets = api.user_timeline(screen_name='EmmanuelMacron', count=10, include_rts=True)
-#
-# for tweet in tweets:
-#     print(tweet.text) #actual message
-#     print(tweet.created_at) #datetime of the tweet, timezone?
-#     # print(tweet)
-#     print('___________________')
+def get_trends(country, password):
+    global auth, api
 
-# WOEID: Yahoo geo id lookup, code for France: 23424819, Switzerland: 23424957, Lyon (France): 609125 available on http://woeid.rosselliot.co.nz/lookup/
-print('Trends in Switzerland:')
-trends_ch = api.trends_place('23424957')
-print(trends_ch)
-for trend in trends_ch[0]['trends']:
-    print(trend['name'])
+    if not crypto.check_password(password):
+        return {'keyword': 'Wrong password for Tweeter trends', 'url': '/'}
 
-print('Trends in France:')
-trends_fr = api.trends_place('23424819')
-print(trends_fr)
-for trend in trends_fr[0]['trends']:
-    print(trend['name'])
+    if auth is None:
+        credentials = crypto.get_credentials(password)
+        auth = OAuthHandler(credentials['consumer_key'], credentials['consumer_secret'])
+        auth.set_access_token(credentials['access_token'], credentials['access_secret'])
+        api = tweepy.API(auth)
 
-print('trends in Lyon:')
-trends_lyon = api.trends_place('609125')
-print(trends_lyon)
-for trend in trends_lyon[0]['trends']:
-    print(trend['name'])
+    code = client.fetch_woeid(country)
+    trends = api.trends_place(code)
+    res = []
+    for trend in trends[0]['trends']:
+        res.append({'keyword': trend['name'], 'url': trend['url']})
+
+    return res
+
+# print(get_trends('SWITZERLAND', 'trucbidule973dtu'))
+
+
