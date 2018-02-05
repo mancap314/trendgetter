@@ -9,6 +9,9 @@ auth = None
 api = None
 
 def get_woeid_code(country):
+    '''get the woeid code of a country'''
+
+    #query this page
     woeid_url = 'http://woeid.rosselliot.co.nz/lookup/{}'.format(country)
 
     buffer = BytesIO()
@@ -21,7 +24,7 @@ def get_woeid_code(country):
     body = buffer.getvalue()
     body = body.decode('UTF-8')
 
-    # parsing
+    # parsing and fetch woeid code
     soup = BeautifulSoup(body, 'lxml')
     code = soup.find('div', id='lookup_result').find("td", {"class": "woeid"}).get_text()
 
@@ -29,6 +32,7 @@ def get_woeid_code(country):
 
 
 def get_trends(country, password):
+    '''get Tweeter trends for the given country'''
     global auth, api
 
     if country is '':
@@ -37,8 +41,8 @@ def get_trends(country, password):
     if not crypto.check_password(password):
         return {'keyword': 'Wrong password for Tweeter trends', 'url': '/'}
 
-    if auth is None:
-        credentials = crypto.get_credentials(password)
+    if auth is None: #create the auth (and api) objects only once (singleton pattern)
+        credentials = crypto.get_credentials(password) #decrypt the encrypted persisted credentials with the password
         auth = OAuthHandler(credentials['consumer_key'], credentials['consumer_secret'])
         auth.set_access_token(credentials['access_token'], credentials['access_secret'])
         api = tweepy.API(auth)

@@ -18,9 +18,10 @@ country_code = {'UNITED_STATES': 'p1', 'ARGENTINA': 'p30', 'AUSTRALIA': 'p8', 'A
 
 
 def get_google_trends(country):
+    '''get the google trends for a country'''
     if country is '':
         return []
-
+    # query the Google Trends API
     buffer = BytesIO()
     c = pycurl.Curl()
     c.setopt(c.URL, '{}{}'.format(base_url, country_code[country]))
@@ -31,7 +32,7 @@ def get_google_trends(country):
     body = buffer.getvalue()
     body = body.decode('UTF-8')
 
-    # parsing
+    # parsing the response
     soup = BeautifulSoup(body, 'xml')
     res = []
     for item in soup.find_all('item'):
@@ -45,6 +46,7 @@ def get_google_trends(country):
     return res
 
 def get_countries():
+    '''get sorted list of the countries'''
     return sorted(list(country_code.keys()))
 
 

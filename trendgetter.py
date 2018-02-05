@@ -12,6 +12,7 @@ server = app.server
 
 countries = gtc.get_countries()
 
+# define the layout
 app.layout = html.Div(children=[
     html.H1(children='Welcome to Trendgetter'),
     html.H2(children='Get the news trends', style={'font-weight': 'italic'}),
@@ -34,8 +35,8 @@ app.layout = html.Div(children=[
     ], style={'width': '20%', 'display': 'inline-block'}),
 
     html.Div(children=[
-        html.Div(id='output-google-trends', style={'float': 'left', 'width': '45%'}),
-        html.Div(id='output-twitter-trends', style={'float': 'left', 'width': '45%'})
+        html.Div(id='output-google-trends', style={'float': 'left', 'width': '50%'}),
+        html.Div(id='output-twitter-trends', style={'float': 'left', 'width': '50%'})
     ], style={'clear': 'both'}),
 
     html.Hr(style={'border-width': '1px', 'margin-top': '1em','margin-bottom': '1em'}),
@@ -47,29 +48,32 @@ app.layout = html.Div(children=[
     ], style={'font-size': '0.8em'})
 ])
 
+# call, format and show the Google Trends results if there is a change in the selected country
 @app.callback(
     dash.dependencies.Output('output-google-trends', 'children'),
     [dash.dependencies.Input('country-dropdown', 'value')]
 )
 def update_google_trends(country):
-    if country is '':
+    if country is '': #return nothing if no country has been selected
         return ''
     google_trends = gtc.get_google_trends(country)
+    #format the response
     res = [[html.H2('From Google Trends')]] + [[html.Div(children=trend['keyword'], style={'font-weight': 'bold'}), html.A(trend['title'], \
         href=trend['url']), html.Br(), html.Label('source: {}, date: {}'.format(trend['source'], trend['publication_date'])), html.Br(), html.Br()] for trend in google_trends]
     res = list(itertools.chain(*res))
     return res
 
+# call, format and show the GoogleTweeter trends results if there is a change in the selected country and if the provided password is correct
 @app.callback(
     dash.dependencies.Output('output-twitter-trends', 'children'),
     [dash.dependencies.Input('country-dropdown', 'value'),
      dash.dependencies.Input('tweet-pwd', 'value')]
 )
 def update_twitter_trends(country, password):
-    if country is '':
+    if country is '': #return nothing if no country has been selected
         return ''
     twitter_trends = tweets.get_trends(country, password)
-    # res = [html.H2('From Twitter')] + [html.H3(trend['keyword']) for trend in twitter_trends]
+    # format the response
     res = [[html.H2('From Twitter')]] + [[html.A(trend['keyword'], href=trend['url']), html.Br(), html.Br()] for trend in twitter_trends]
     res = list(itertools.chain(*res))
     return res
