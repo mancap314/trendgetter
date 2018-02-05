@@ -16,7 +16,7 @@ access_secret = aaa
 to get Twitter APi credentials if you don't already have some)
 
 3. Create a file *password.txt* in the root directory containing one line with
-a password of a **multiple of 12** characters (12or 24...)
+a password of a **multiple of 12** characters (12 or 24...)
 4. Run *crypto.encrypt_credentials()*
 5. Run *trendgetter.py*
 
